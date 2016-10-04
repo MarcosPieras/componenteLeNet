@@ -85,7 +85,9 @@ class Control():
             aspect_ratio = float(w)/h
 
 
-            if aspect_ratio<0.98 and w>40:
+            #if aspect_ratio<0.98 and w>50:
+
+            if aspect_ratio<0.98:
 
 
                 cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
@@ -105,8 +107,10 @@ class Control():
 
 
                 output = self.xarxa.forward()
-                print output['prob'].argmax()
 
+                digito = output['prob'].argmax()
+
+                cv2.putText(img,str(digito), (x,y-4), cv2.FONT_HERSHEY_SIMPLEX, 2, 255)
 
 
 

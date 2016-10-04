@@ -85,14 +85,14 @@ class Control():
             aspect_ratio = float(w)/h
 
 
-            if aspect_ratio<0.98 and w>40:
+            if aspect_ratio<0.98 and w>60:
 
 
                 cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
                 imagenDigito = img[y:y+h,x:x+w]
                 imagenDigitoGris = cv2.cvtColor(imagenDigito, cv2.COLOR_BGR2GRAY)
                 ret,roi = cv2.threshold(imagenDigitoGris,200,255,cv2.THRESH_BINARY_INV|cv2.THRESH_OTSU)
-                paddding = 20
+                paddding = 10
                 constant= cv2.copyMakeBorder(roi,paddding,paddding,paddding,paddding,cv2.BORDER_CONSTANT,value=0)
 
 
