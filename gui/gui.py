@@ -9,6 +9,7 @@ class Gui(QtGui.QWidget):
 
     updGUI=QtCore.pyqtSignal()
     def __init__(self, parent=None):
+
         QtGui.QWidget.__init__(self, parent)
         self.setWindowTitle("CamaraReal")
         self.imgLabel=QtGui.QLabel(self)
@@ -16,6 +17,7 @@ class Gui(QtGui.QWidget):
         self.updGUI.connect(self.update)
 
         TestButton=QtGui.QPushButton("Test")
+        TestButton.move(50, 50)
         TestButton.resize(40,40)
         TestButton.setParent(self)
         TestButton.clicked.connect(self.effect)

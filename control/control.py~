@@ -4,12 +4,21 @@ import numpy as np
 import threading
 import cv2
 from matplotlib import pyplot as plt
+sys.path.insert(0, '/home/marc/caffe/python')
+import caffe
 
 class Control():
 
     def __init__(self):
         self.lock = threading.Lock()
-        self.effectON = 'False'
+        self.effectON = False
+
+
+        model_file = '/home/marc/caffe/examples/mnist/lenet.prototxt'
+        pretrained_file = '/home/marc/caffe/examples/mnist/lenet_iter_10000.caffemodel'
+        self.xarxa = net = caffe.Classifier(model_file, pretrained_file, image_dims=(28, 28), raw_scale=255)
+
+
 
         try:
             ic = Ice.initialize(sys.argv)
@@ -25,7 +34,7 @@ class Control():
 
         except:
             traceback.print_exc()
-	    exit()
+            exit()
             status = 1
 
     def update(self):
@@ -47,21 +56,58 @@ class Control():
             if self.effectON:
                 image = self.opencvtest(image)
             self.lock.release()
-            return image;
+            return image
 
     def effect(self):
-        #self.effectON = not self.effectON
-	
-	
+        self.effectON = not self.effectON
 
     def opencvtest(self, img):
-        #edges = cv2.Canny(img,100,200)
-	kernel = np.ones((10,10),np.float32)/25
-	edges = cv2.filter2D(img,-1,kernel)
-	self.lock = threading.Lock()
-        return edges;
 
 
 
-        #image = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-        #return image
+        # Gaussian Filter
+        kernel = np.ones((5,5),np.float32)/25
+        dst = cv2.filter2D(img,-1,kernel)
+
+        # Edges
+        edges = cv2.Canny(dst,100,200)
+        # Dilatation
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(18,18))
+        dilation = cv2.dilate(edges,kernel,iterations = 1)
+
+        # Contornos
+        contours, hierarchy = cv2.findContours(dilation,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+
+        for c in contours:
+
+
+            x,y,w,h = cv2.boundingRect(c)
+            aspect_ratio = float(w)/h
+
+
+            if aspect_ratio<0.98 and w>40:
+
+
+                cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                imagenDigito = img[y:y+h,x:x+w]
+                imagenDigitoGris = cv2.cvtColor(imagenDigito, cv2.COLOR_BGR2GRAY)
+                ret,roi = cv2.threshold(imagenDigitoGris,200,255,cv2.THRESH_BINARY_INV|cv2.THRESH_OTSU)
+                paddding = 20
+                constant= cv2.copyMakeBorder(roi,paddding,paddding,paddding,paddding,cv2.BORDER_CONSTANT,value=0)
+
+
+                imagef= cv2.resize(constant,(28,28))
+                #imagef=cv2.normalize(np.float32(imagef),imagef, -1, 1, cv2.NORM_MINMAX)
+                imagef=cv2.normalize(np.float32(imagef),imagef, 0, 1, cv2.NORM_MINMAX)
+                self.xarxa.blobs['data'].reshape(1,1,28,28)
+
+                self.xarxa.blobs['data'].data[...]=imagef
+
+
+                output = self.xarxa.forward()
+                print output['prob'].argmax()
+
+
+
+
+        return img
