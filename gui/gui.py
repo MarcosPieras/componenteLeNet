@@ -27,20 +27,11 @@ class Gui(QtGui.QWidget):
         hbox = QtGui.QVBoxLayout()
      
         TestButton=QtGui.QPushButton("Evaluar")
-        #TestButton.move(20, 20)
-        #TestButton.resize(100,50)
-        #TestButton.setParent(self)
         TestButton.clicked.connect(self.effect)
 
         self.imgLabel = QtGui.QLabel(self)
-        #imgLabel.resize(self.IMAGE_COLS_MAX,self.IMAGE_ROWS_MAX)
-        #imgLabel.move(100,100)
-        #self.imgLabel.show()
-
         hbox.addWidget(self.imgLabel)
         hbox.addWidget(TestButton)
-        
-
         self.setLayout(hbox) 
 
 
@@ -49,7 +40,7 @@ class Gui(QtGui.QWidget):
         self.control=control
 
     def update(self):
-        print 'updgui'
+        #print 'updgui'
         image = self.control.getImage()
         if image != None:
             img = QtGui.QImage(image.data, image.shape[1], image.shape[0], QtGui.QImage.Format_RGB888)
@@ -57,8 +48,9 @@ class Gui(QtGui.QWidget):
             #self.imgLabel.resize(size)
             #self.resize(size)
             self.imgLabel.setPixmap(QtGui.QPixmap.fromImage(img))
-            print 'printimg'
+            #print 'printimg'
 
     def effect(self):
+        print 'shooooooooooooooooooooooooooooooooo'
         self.control.effect()
 

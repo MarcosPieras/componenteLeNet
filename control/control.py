@@ -3,9 +3,11 @@ import jderobot
 import numpy as np
 import threading
 import cv2
-from matplotlib import pyplot as plt
+import time
+#from matplotlib import pyplot as plt
 sys.path.insert(0, '/home/marc/caffe/python')
 import caffe
+from datetime import datetime
 
 class Control():
 
@@ -40,7 +42,7 @@ class Control():
     def update(self):
         if self.cameraProxy:
             self.lock.acquire()
-            print 'updtcontrol'
+            #print 'updtcontrol'
             self.image = self.cameraProxy.getImageData("RGB8")
             self.height= self.image.description.height
             self.width = self.image.description.width
@@ -49,12 +51,15 @@ class Control():
     def getImage(self):
         if self.cameraProxy:
             self.lock.acquire()
-            print 'getimage'
+            #print 'getimage'
             image = np.zeros((self.height, self.width, 3), np.uint8)
             image = np.frombuffer(self.image.pixelData, dtype=np.uint8)
             image.shape = self.height, self.width, 3
             if self.effectON:
+                
                 image = self.opencvtest(image)
+                
+                
             self.lock.release()
             return image
 
@@ -64,7 +69,7 @@ class Control():
     def opencvtest(self, img):
 
 
-
+        #start_time = datetime.now()
         # Gaussian Filter
         kernel = np.ones((5,5),np.float32)/25
         dst = cv2.filter2D(img,-1,kernel)
@@ -112,6 +117,8 @@ class Control():
 
                 cv2.putText(img,str(digito), (x,y-4), cv2.FONT_HERSHEY_SIMPLEX, 2, 255)
 
-
-
+        #end_time = datetime.now()
+        #dt = end_time - start_time
+        #print float(dt.microseconds)/1000000
+	self.effectON = False
         return img
